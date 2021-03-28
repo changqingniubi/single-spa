@@ -53,6 +53,16 @@ window.history.pushState = patchedUpdateState(window.history.pushState,'pushStat
 window.history.replaceState = patchedUpdateState(window.history.replaceState,'replaceState');
 
 // 用户可能还会绑定自己的路由事件 vue
-
-
 // 当我们应用切换后，还需要处理原来的方法，需要在应用切换后在执行
+
+// 在子应用加载完毕后调用此方法，执行拦截的逻辑（保证子应用加载完后执行）
+export function callCapturedEventListeners(eventArguments) {
+    if (eventArguments) {
+        const eventType = eventArguments[0].type;
+        if (routingEventsListeningTo.indexOf(eventType) >= 0) {
+            capturedEventListeners[eventType].forEach((listener) => {
+                listener.apply(this, eventArguments);
+            });
+        }
+    }
+}
